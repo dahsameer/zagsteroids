@@ -83,11 +83,32 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    // Add GLFW
+    exe.addIncludePath(b.path("libs/glfw/include"));
+    exe.addLibraryPath(b.path("libs/glfw/win-vc2022"));
+    exe.linkSystemLibrary("glfw3dll");
+
+    // Add GLAD
+    exe.addCSourceFile(.{ .file = b.path("libs/glad/src/glad.c"), .flags = &.{} });
+    exe.addIncludePath(b.path("libs/glad/include"));
+
+    // Link Windows OpenGL libraries
+    exe.linkSystemLibrary("opengl32");
+    exe.linkSystemLibrary("gdi32");
+    exe.linkSystemLibrary("user32");
+    exe.linkLibC();
+
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
     // step). By default the install prefix is `zig-out/` but can be overridden
     // by passing `--prefix` or `-p`.
     b.installArtifact(exe);
+
+    // Create a custom step to copy DLLs
+    const copy_dlls = b.step("copy-dlls", "Copy required DLLs");
+    const copy_dll_cmd = b.addSystemCommand(&[_][]const u8{ "xcopy", "/Y", "libs\\glfw\\win-vc2022\\*.dll", "zig-out\\bin\\" });
+    copy_dlls.dependOn(&copy_dll_cmd.step);
+    b.getInstallStep().dependOn(copy_dlls);
 
     // This creates a top level step. Top level steps have a name and can be
     // invoked by name when running `zig build` (e.g. `zig build run`).
