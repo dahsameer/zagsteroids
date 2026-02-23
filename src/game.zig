@@ -35,5 +35,15 @@ pub const Game = struct {
             .{ 1.0, 1.0, 1.0, 1.0 },
             c.GL_LINE_LOOP,
         );
+        if (self.input.thrust) {
+            self.renderer.draw(
+                &shipmod.FLAME_SHAPE,
+                self.ship.pos,
+                self.ship.angle,
+                1.0,
+                .{ 1.0, 0.5, 0.0, 1.0 },
+                c.GL_TRIANGLES,
+            );
+        }
     }
 };

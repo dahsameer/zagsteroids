@@ -4,15 +4,23 @@ const Vec2 = m.Vec2;
 const Input = @import("input.zig").Input;
 
 const TURN_SPEED: f32 = 2.0;
-const THRUST_FORCE: f32 = 100.0;
+const THRUST_FORCE: f32 = 200.0;
 const MAX_SPEED: f32 = 500.0;
 const DAMPING: f32 = 0.99;
 
 pub const SHAPE = [_][2]f32{
-    .{ 0, -10 },
-    .{ 7, 10 },
-    .{ 0, 5 },
-    .{ -7, 10 },
+    .{ 0, -16 },
+    .{ 11, 12 },
+    .{ 5, 7 },
+    .{ 0, 10 },
+    .{ -5, 7 },
+    .{ -11, 12 },
+};
+
+pub const FLAME_SHAPE = [_][2]f32{
+    .{ -4, 10 },
+    .{ 0, 22 },
+    .{ 4, 10 },
 };
 
 pub const Ship = struct {
