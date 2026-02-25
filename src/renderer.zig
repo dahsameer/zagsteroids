@@ -3,36 +3,6 @@ const c = @import("cimport.zig").c;
 const cnst = @import("constants.zig");
 const m = @import("math.zig");
 
-const VERT_SRC: [*c]const u8 =
-    \\#version 460 core
-    \\layout(location = 0) in vec2 aPos;
-    \\
-    \\uniform vec2  uTranslation;
-    \\uniform float uRotation;
-    \\uniform vec2  uResolution;
-    \\uniform float uScale;
-    \\
-    \\void main() {
-    \\    float c = cos(uRotation);
-    \\    float s = sin(uRotation);
-    \\    vec2 rotated = vec2(aPos.x * c - aPos.y * s,
-    \\                        aPos.x * s + aPos.y * c);
-    \\    vec2 world = rotated * uScale + uTranslation;
-    \\    // convert pixel coords → NDC (origin top-left)
-    \\    vec2 ndc = (world / uResolution) * 2.0 - 1.0;
-    \\    gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
-    \\}
-;
-
-const FRAG_SRC: [*c]const u8 =
-    \\#version 460 core
-    \\uniform vec4 uColor;
-    \\out vec4 fragColor;
-    \\void main() {
-    \\    fragColor = uColor;
-    \\}
-;
-
 const Uniforms = struct {
     translation: c_int,
     rotation: c_int,
@@ -48,11 +18,9 @@ pub const Renderer = struct {
     uni: Uniforms,
 
     pub fn init() !Renderer {
-        // const vertexShaderSource: [*c]const u8 = @embedFile("resources/vert.glsl");
-        // const fragmentShaderSource: [*c]const u8 = @embedFile("resources/frag.glsl");
-        // const program = try compileProgram(vertexShaderSource, fragmentShaderSource);
-
-        const program = try compileProgram(VERT_SRC, FRAG_SRC);
+        const vertexShaderSource: [*c]const u8 = @embedFile("resources/vert.glsl");
+        const fragmentShaderSource: [*c]const u8 = @embedFile("resources/frag.glsl");
+        const program = try compileProgram(vertexShaderSource, fragmentShaderSource);
 
         var vao: c_uint = 0;
         var vbo: c_uint = 0;

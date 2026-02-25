@@ -72,7 +72,17 @@ pub fn main() !void {
     const renderer = try Renderer.init();
     defer renderer.deinit();
 
-    var game = Game.init(renderer);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer {
+        const leak = gpa.deinit();
+        if (leak == std.heap.Check.leak) {
+            std.debug.print("Memory leak detected: {d} bytes\n", .{leak});
+        }
+    }
+    const allocator = gpa.allocator();
+
+    var game = try Game.init(renderer, allocator);
+    defer game.deinit(allocator);
     var last_time: f64 = c.glfwGetTime();
 
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
@@ -84,7 +94,7 @@ pub fn main() !void {
         const dt: f32 = @floatCast(now - last_time);
         last_time = now;
 
-        game.update(dt, window);
+        try game.update(allocator, dt, window);
         game.render();
 
         c.glfwSwapBuffers(window);
